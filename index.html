@@ -15,97 +15,126 @@ after 5 rounds, the final score is displayed and the winner is announced.
 -->
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Rock Paper Scissors</title>
-</head>
+    <style>
+      /* Basic styling to make the UI look clean */
+      body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        margin-top: 50px;
+      }
+      button {
+        padding: 10px 20px;
+        font-size: 16px;
+        margin: 10px;
+        cursor: pointer;
+      }
+      #results-container {
+        margin-top: 30px;
+        font-size: 1.2rem;
+      }
+      #game-winner {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #2e7d32; /* Dark green */
+        margin-top: 20px;
+      }
+    </style>
+  </head>
 
-<body>
-    <h1>Open Console!</h1>
+  <body>
+    <h1>Rock, Paper, Scissors</h1>
+    <p>First to 5 points wins!</p>
+
+    <div id="buttons">
+      <button id="rock">Rock</button>
+      <button id="paper">Paper</button>
+      <button id="scissors">Scissors</button>
+    </div>
+
+    <div id="results-container">
+      <p id="round-result">Make your choice to start the game!</p>
+      <p>
+        <strong>Score:</strong> You: <span id="human-score">0</span> | Computer:
+        <span id="computer-score">0</span>
+      </p>
+      <div id="game-winner"></div>
+    </div>
+
     <script>
-        const choices = ['rock', 'paper', 'scissors'];
-        function getComputerChoice() {
-            const randomIndex = Math.floor(Math.random() * choices.length);
-            return choices[randomIndex];
+      // State variables to keep track of the running score
+      let humanScore = 0;
+      let computerScore = 0;
+      const choices = ["rock", "paper", "scissors"];
+
+      // DOM Element references
+      const rockBtn = document.getElementById("rock");
+      const paperBtn = document.getElementById("paper");
+      const scissorsBtn = document.getElementById("scissors");
+      const roundResultDiv = document.getElementById("round-result");
+      const humanScoreDisplay = document.getElementById("human-score");
+      const computerScoreDisplay = document.getElementById("computer-score");
+      const gameWinnerDiv = document.getElementById("game-winner");
+
+      function getComputerChoice() {
+        const randomIndex = Math.floor(Math.random() * choices.length);
+        return choices[randomIndex];
+      }
+
+      // 3. Reworked playRound function to use DOM methods instead of console.logs
+      function playRound(humanChoice) {
+        // Stop playing if someone has already won
+        if (humanScore >= 5 || computerScore >= 5) return;
+
+        const computerChoice = getComputerChoice();
+
+        // Determine the round winner and update the text
+        if (humanChoice === computerChoice) {
+          roundResultDiv.textContent = `It's a tie! You both chose ${humanChoice}.`;
+        } else if (
+          (humanChoice === "rock" && computerChoice === "scissors") ||
+          (humanChoice === "paper" && computerChoice === "rock") ||
+          (humanChoice === "scissors" && computerChoice === "paper")
+        ) {
+          roundResultDiv.textContent = `You win this round! ${humanChoice} beats ${computerChoice}.`;
+          humanScore++;
+        } else {
+          roundResultDiv.textContent = `Computer wins this round! ${computerChoice} beats ${humanChoice}.`;
+          computerScore++;
         }
-        function getHumanChoice() {
-            while (true) {
-                const userInput = prompt("Please choose rock, paper, or scissors:");
 
-                // If user clicks "Cancel"
-                if (userInput === null) {
-                    console.log("Game cancelled by user.");
-                    return null;
-                }
+        // 4. Display the running score
+        humanScoreDisplay.textContent = humanScore;
+        computerScoreDisplay.textContent = computerScore;
 
-                const choice = userInput.trim().toLowerCase();
+        // 5. Announce a winner once one player reaches 5 points
+        checkWinner();
+      }
 
-                if (choices.includes(choice)) {
-                    return choice;
-                } else {
-                    alert("Invalid choice. Please check your spelling and try again.");
-                }
-            }
+      function checkWinner() {
+        if (humanScore === 5) {
+          gameWinnerDiv.textContent = "🏆 Congratulations! You won the game!";
+          disableButtons();
+        } else if (computerScore === 5) {
+          gameWinnerDiv.textContent = "💀 Game Over. The computer won.";
+          disableButtons();
         }
+      }
 
-        function playRound(humanChoice, computerChoice) {
-            console.log(`You chose: ${humanChoice}`);
-            console.log(`Computer chose: ${computerChoice}`);
+      // Optional: Disable buttons after the game ends so the score stops going up
+      function disableButtons() {
+        rockBtn.disabled = true;
+        paperBtn.disabled = true;
+        scissorsBtn.disabled = true;
+      }
 
-            if (humanChoice === computerChoice) {
-                console.log("It's a tie!");
-                return "tie";
-            } else if (
-                (humanChoice === 'rock' && computerChoice === 'scissors') ||
-                (humanChoice === 'paper' && computerChoice === 'rock') ||
-                (humanChoice === 'scissors' && computerChoice === 'paper')
-            ) {
-                console.log("You win this round!");
-                return "human";
-            } else {
-                console.log("Computer wins this round!");
-                return "computer";
-            }
-        }
-        function playGame() {
-            let humanScore = 0;
-            let computerScore = 0;
-
-            console.log("Starting a 5-round game of Rock, Paper, Scissors!");
-
-            for (let i = 0; i < 5; i++) {
-                console.log(`\n Round ${i + 1} of 5:`);
-                const humanChoice = getHumanChoice();
-
-                // Exit the whole game loop if the user clicked cancel
-                if (!humanChoice) {
-                    console.log("Exiting game...");
-                    return;
-                }
-
-                const computerChoice = getComputerChoice();
-                const roundWinner = playRound(humanChoice, computerChoice);
-
-                if (roundWinner === "human") {
-                    humanScore++;
-                } else if (roundWinner === "computer") {
-                    computerScore++;
-                }
-                console.log(`Current Score - You: ${humanScore}, Computer: ${computerScore}\n`);
-            }
-
-            if (humanScore > computerScore) {
-                console.log(`You won the game ${humanScore} to ${computerScore}!`);
-            } else if (computerScore > humanScore) {
-                console.log(`Game over: Computer won ${computerScore} to ${humanScore}.`);
-            } else {
-                console.log(`Tied ${humanScore} to ${computerScore}!`);
-            }
-        }
-        playGame();
+      // 6. Add event listeners to the buttons to call playRound
+      rockBtn.addEventListener("click", () => playRound("rock"));
+      paperBtn.addEventListener("click", () => playRound("paper"));
+      scissorsBtn.addEventListener("click", () => playRound("scissors"));
     </script>
-</body>
-
+  </body>
 </html>
